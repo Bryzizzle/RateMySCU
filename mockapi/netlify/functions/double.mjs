@@ -1,7 +1,3 @@
-// const data = {
-//
-// }
-
 export default async (req, context) => {
   const { path1, path2 } = context.params;
 
