@@ -1,0 +1,85 @@
+{
+    "data": {
+        "path1": {
+            "status_code": 200,
+            "response": {
+                "status": "OK",
+                "version": "dev",
+                "data": {
+                    "path": "./path1"
+                }
+            }
+        },
+
+        "path1/sec": {
+            "status_code": 200,
+            "response": {
+                "status": "OK",
+                "version": "dev",
+                "data": {
+                    "path": "./path1/sec"
+                }
+            }
+        },
+
+        "path1/sec/ter": {
+            "status_code": 200,
+            "response": {
+                "status": "OK",
+                "version": "dev",
+                "data": {
+                    "path": "./path1/sec/ter"
+                }
+            }
+        },
+
+
+        "path2": {
+            "status_code": 200,
+            "response": {
+                "status": "OK",
+                "version": "dev",
+                "data": {
+                    "path": "./path2"
+                }
+            }
+        },
+
+        "path3/secondary": {
+            "status_code": 200,
+            "response": {
+                "status": "OK",
+                "version": "dev",
+                "data": {
+                    "path": "./path3/secondary"
+                }
+            }
+        },
+
+        "unauthorized": {
+            "status_code": 401,
+            "response": {
+                "status": "Unauthorized",
+                "version": "dev",
+                "error": "Sign In Required"
+            }
+        },
+
+        "forbidden": {
+            "status_code": 403,
+            "response": {
+                "status": "Forbidden",
+                "version": "dev",
+                "error": "Only accounts with the scu.edu domain are allowed"
+            }
+        }
+    },
+    "_notfound": {
+        "status_code": 404,
+        "response": {
+            "status": "Not Found",
+            "version": "dev",
+            "error": "Invalid API Path"
+        }
+    }
+}
