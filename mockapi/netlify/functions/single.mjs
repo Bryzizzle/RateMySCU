@@ -3,10 +3,15 @@ import data from './data.json'
 export default async (req, context) => {
     const { path1 } = context.params;
 
-    const resp = data["data"][path1];
-    console.log(resp);
+    // Retrieve the associated response
+    let resp = data.data[path1];
 
-    return Response.json(resp);
+    // If the request is not defined in the data.json file, then return a 404 response
+    if (resp === undefined) {
+        resp = data._notfound
+    }
+
+    return Response.json(resp.response, {status: resp.status_code});
 };
 
 export const config = {
