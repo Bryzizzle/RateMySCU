@@ -2,9 +2,14 @@ import data from './data.json'
 
 export default async (req, context) => {
     const { path1, path2 } = context.params;
+    let resp;
 
-    // Retrieve the associated response
-    let resp = data.data[path1][path2];
+    // Retrieve the associated response, if it fails then set it to undefined
+    try {
+        resp = data.data[path1][path2];
+    } catch (e) {
+        resp = undefined;
+    }
 
     // If the request is not defined in the data.json file, then return a 404 response
     if (resp === undefined) {
