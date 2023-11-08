@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/"
+  to = "https://ratemyscu.bryan.cf"
+  status = 307
