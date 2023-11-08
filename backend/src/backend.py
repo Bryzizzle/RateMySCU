@@ -16,7 +16,7 @@ async def invalid_endpoint():
 
 @app.get("/check")
 async def health_check():
-    raise {"status": "OK", "version": "dev"}
+    return {"status": "OK", "version": "dev"}
 
 
 @app.get("{full_path:path}")
