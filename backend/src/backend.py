@@ -16,4 +16,4 @@ async def invalid_endpoint():
 
 @app.get("{full_path:path}")
 async def not_api_call():
-    return RedirectResponse("https://ratemyscu.scu.edu")
+    return RedirectResponse("https://ratemyscu.bryan.cf")
