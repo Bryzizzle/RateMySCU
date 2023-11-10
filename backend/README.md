@@ -1,3 +1,4 @@
 # RateMySCU Backend
-Language: Python
-Main Framework: FastAPI
+Infrastructure: Vercel Serverless Functions<br>
+Language: Python 3.9<br>
+Framework: FastAPI

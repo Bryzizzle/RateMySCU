@@ -1,5 +1,5 @@
 # RateMySCU Mock Backend
-Language: 
-Main Framework: FastAPI
-
+Infrastructure: Netlify Serverless Functions<br>
+Language: Javascript<br>
+Framework: None
 
