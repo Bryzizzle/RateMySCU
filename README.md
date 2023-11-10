@@ -12,7 +12,8 @@ This project consists of four distinct services as listed below:
 | [Mock API](https://mockapi.ratemyscu.bryan.cf) [(src)](./mockapi) | A Mock Backend endpoint that returns a predefined value. This allows for development of the frontend service in parallel with the backend service. | Netlify          | [![Backend Status](https://api.netlify.com/api/v1/badges/2408b928-fc17-40c1-9144-af5aaf8cee45/deploy-status)](https://app.netlify.com/sites/mockapi-ratemyscu/deploys)    |
 | [Status Page](https://status.ratemyscu.bryan.cf)                  | Monitors the uptime and availability of each of the services above.                                                                                | HetrixTools      |                                                                                                                                                                           |
 
-
+Please note that the root path of each service above **automatically redirects you** to the user-facing
+frontend site. As such, it will seem like all the services above point to one page.
 
 More detail about each service can be viewed by following the `(src)` link on the table.
 This will bring you to the respective source folder for each service which contains a more detailed
