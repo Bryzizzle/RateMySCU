@@ -1,5 +1,97 @@
 {
     "data": {
+        "test": {
+            "status_code": 200,
+            "response": {
+                "status": "OK",
+                "version": "dev",
+                "data": {
+                    "classCode": "ARTH152",
+                    "className": "Arts of Ancient Mexico",
+                    "quarter": "Spring",
+                    "year": 2023,
+                    "professor": "Gaby Greenlee",
+                    "numStudents": 24,
+                    "numResponses": 7,
+                    "responseRate": 3.42857,
+                    "hours": [0, 57.1, 28.6, 14.3, 0, 0, 0],
+                    "overall": 3.9,
+                    "stats": [
+                        {
+                             "desc": "The instructor communicated clearly the expectations for the course.",
+                             "n": 7,
+                             "avg": 4.1,
+                             "med": 5,
+                             "dev": 1.1
+                         },
+                        {
+                             "desc": "The instructor organized the course effectively.",
+                             "n": 7,
+                             "avg": 4.1,
+                             "med": 4,
+                             "dev": 0.7
+                         },
+                        {
+                             "desc": "The instructor designed a course that challenged me to think rigorously about the material.",
+                             "n": 7,
+                             "avg": 4,
+                             "med": 4,
+                             "dev": 0.8
+                         },
+                        {
+                             "desc": "The instructor helped students to reach a clear understanding of key concepts.",
+                             "n": 7,
+                             "avg": 4.4,
+                             "med": 5,
+                             "dev": 0.8
+                         },
+                        {
+                             "desc": "The instructor managed class time in a manner that advanced my learning.",
+                             "n": 7,
+                             "avg": 4.3,
+                             "med": 3,
+                             "dev": 0.5
+                         },
+                        {
+                             "desc": "The instructor fostered a mutually respectful learning environment.",
+                             "n": 7,
+                             "avg": 4.7,
+                             "med": 5,
+                             "dev": 0.8
+                         },
+                        {
+                             "desc": "The instructor provided useful oral or written feedback.",
+                             "n": 7,
+                             "avg": 4,
+                             "med": 4,
+                             "dev": 0.8
+                         },
+                        {
+                             "desc": "The instructor was available and willing to help students outside class.",
+                             "n": 7,
+                             "avg": 3.9,
+                             "med": 4,
+                             "dev": 0.9
+                         },
+                        {
+                             "desc": "Overall, the instructor is an excellent teacher.",
+                             "n": 7,
+                             "avg": 3.9,
+                             "med": 4,
+                             "dev": 0.7
+                         },
+                        {
+                             "desc": "This course was conceptually challenging compared to most courses I have taken at SCU:",
+                             "n": 7,
+                             "avg": 3.4,
+                             "med": 4,
+                             "dev": 1.1
+                         }
+                    ]
+                }
+            }
+        },
+
         "path1": {
             "status_code": 200,
             "response": {
