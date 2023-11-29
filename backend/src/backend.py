@@ -1,13 +1,11 @@
 import os
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from .database import *
 
 app = FastAPI()
-load_dotenv()
-connection = create_connection(os.getenv('POSTGRES_DATABASE'), os.getenv('POSTGRES_USER'),
-    os.getenv('POSTGRES_PASSWORD'), os.getenv('POSTGRES_HOST'), os.getenv('POSTGRES_PORT'))
+connection = create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
+    os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'), os.environ.get('POSTGRES_PORT'))
 
 
 @app.get("/api/v0")
