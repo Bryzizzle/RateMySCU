@@ -42,9 +42,9 @@ def create_evaluation():
 def upload_evaluation(eval: Evaluation, connection):
     try:
         print("Uploading evaluation")
-        query = """INSERT INTO evals (id, classcode, classname, quarter, year, professor, 
+        query = """INSERT INTO evals (classcode, classname, quarter, year, professor, 
             numstudents, numresponses, overall, hours, stats) VALUES ("""
-        queryBuilder = ["'1111112'"] # need something to generate an id
+        queryBuilder = []
         queryBuilder.append("'" + eval.metadata.section_code + "'")
         queryBuilder.append("'" + eval.metadata.course_name + "'")
         queryBuilder.append("'" + eval.metadata.section_quarter + "'")
