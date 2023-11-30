@@ -2,9 +2,9 @@ import json
 from .scueval.structs import *
 from .database import *
 
+# CODE FOR UPLOADING EVALUATIONS FROM PDF TO DATABASE
 
-# WIP eval upload system
-
+# test_uplaod_system: temporary code for uploading placeholder evaluation to database
 def test_upload_system(connection):
     try:
         evaluation = create_evaluation()
@@ -12,6 +12,7 @@ def test_upload_system(connection):
     except Exception as e:
         print(e)
 
+# create_evaluation: temporary code for creating an evaluation to upload
 def create_evaluation():
     try:
         print("Creating evaluation")
@@ -39,29 +40,31 @@ def create_evaluation():
     except Exception as e:
         print(e)
 
+# upload_evaluation: creates SQL query to upload evaluation to postgres database
 def upload_evaluation(eval: Evaluation, connection):
     try:
         print("Uploading evaluation")
         query = """INSERT INTO evals (classcode, classname, quarter, year, professor, 
             numstudents, numresponses, overall, hours, stats) VALUES ("""
-        queryBuilder = []
-        queryBuilder.append("'" + eval.metadata.section_code + "'")
-        queryBuilder.append("'" + eval.metadata.course_name + "'")
-        queryBuilder.append("'" + eval.metadata.section_quarter + "'")
-        queryBuilder.append(eval.metadata.section_year)
-        queryBuilder.append("'" + eval.metadata.instructor + "'")
-        queryBuilder.append(str(eval.metadata.section_enrollment))
-        queryBuilder.append(str(eval.metadata.evaluation_responses))
-        queryBuilder.append(str(eval.overall.average))
-        evalHours = str(eval.hours.hours).replace("[","").replace("]","")
-        queryBuilder.append("'{" + evalHours + "}'")
-        queryBuilder.append("'" + str(extract_stats_json(eval.items)) + "'")
-        query += ", ".join(queryBuilder) + ");"
+        query_builder = []
+        query_builder.append("'" + eval.metadata.section_code + "'")
+        query_builder.append("'" + eval.metadata.course_name + "'")
+        query_builder.append("'" + eval.metadata.section_quarter + "'")
+        query_builder.append(eval.metadata.section_year)
+        query_builder.append("'" + eval.metadata.instructor + "'")
+        query_builder.append(str(eval.metadata.section_enrollment))
+        query_builder.append(str(eval.metadata.evaluation_responses))
+        query_builder.append(str(eval.overall.average))
+        eval_hours = str(eval.hours.hours).replace("[","").replace("]","")
+        query_builder.append("'{" + eval_hours + "}'")
+        query_builder.append("'" + str(extract_stats_json(eval.items)) + "'")
+        query += ", ".join(query_builder) + ");"
         print(query)
         no_response_query(connection, query)
     except Exception as e:
         print(e)
 
+# extract_stats_json: extracts the evaluation items from the evaluation as JSON
 def extract_stats_json(items: dict[Items, EvaluationItem]):
     try:
         stats = {}
