@@ -55,7 +55,8 @@ async def select_evaluations(request: EvalRequest):
         evals = select_query(connection, query)
         return { "status": "200", "result": evals }
     except Exception as e:
-        return { "status": "500", "error": e }
+        raise e
+        # return { "status": "500", "error": e }
 
 # request_query_builder: builds an SQL query based on request body from select_evalutations
 def request_query_builder(request: EvalRequest):
