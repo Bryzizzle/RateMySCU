@@ -58,22 +58,9 @@ async def select_evaluations(request: EvalRequest):
         print(query)
         evals = select_query(connection, query)
 
-        # get set of ids from database
-        ids = set()
-        for eval in evals:
-            ids.add(eval["id"])
-        
-        # get set of ids from course eval
-        course_evals = ids # this would be replaced by the function that accesses course eval
-
-        # check if there are evaluations missing in the database and retrieve them
-        if len(ids) < len(course_evals):
-            missing_evals = list(course_evals - ids)
-            # get_course_evals(missing_evals) is this where evalupload sends a request to the pdf analyzer?
-
         return { "status": "200", "result": evals }
     except Exception as e:
-        return { "status": "500", "error": e }
+        return { "status": "500", "error": str(e) }
 
 # request_query_builder: builds an SQL query based on request body from select_evalutations
 def request_query_builder(request: EvalRequest):
@@ -104,10 +91,10 @@ def request_query_builder(request: EvalRequest):
     return query
 
 # test: temporary GET endpoint for testing evaluation upload system
-# @app.post("/uploadEvals")
-# async def manual_upload_evaluations(file: UploadFile = File(...)):
-#     try:
-#         upload_system(connection, file.filename)
-#         return {"status": "200"}
-#     except Exception as e:
-#         return { "status": "500", "error": e }
+@app.post("/uploadEvals")
+async def manual_upload_evaluations(file: UploadFile):
+    try:
+        # upload_system(connection, file.filename)
+        return { "status": "200", "file name": file.filename }
+    except Exception as e:
+        return { "status": "500", "error": str(e) }
