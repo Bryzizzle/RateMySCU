@@ -1,18 +1,20 @@
 import json
 from .scueval.structs import *
 from .database import *
-# from .scueval.analyze import process_pdf
+from .scueval.analyze import process_pdf
 
 # CODE FOR UPLOADING EVALUATIONS FROM PDF TO DATABASE
 
 # uplaod_system: temporary code for uploading placeholder evaluation to database
-# def upload_system(connection, file_loc: str):
-    # try:
-        # evaluation = process_pdf(file_loc)
+def upload_system(connection, file_loc: str):
+    try:
+        print("activate upload")
+        evaluation = process_pdf(file_loc)
+        print("created evaluation")
         # evaluation = create_evaluation()
-        # upload_evaluation(evaluation, connection)
-    # except Exception as e:
-    #     print(e)
+        upload_evaluation(evaluation, connection)
+    except Exception as e:
+        print(e)
 
 # create_evaluation: temporary code for creating an evaluation to upload
 def create_evaluation():

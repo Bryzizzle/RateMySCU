@@ -94,7 +94,7 @@ def request_query_builder(request: EvalRequest):
 @app.post("/uploadEvals")
 async def manual_upload_evaluations(file: UploadFile):
     try:
-        # upload_system(connection, file.filename)
+        upload_system(connection, file.filename)
         return { "status": "200", "file name": file.filename }
     except Exception as e:
         return { "status": "500", "error": str(e) }
