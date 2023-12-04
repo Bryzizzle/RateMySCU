@@ -5,9 +5,9 @@ from typing import Iterator, Optional
 from operator import attrgetter
 import re
 
-from scueval.config import SearchParams as Params
-from scueval.exceptions import MissingElementError, ParseVerificationError
-from scueval.structs import EvaluationMetadata, EvaluationItem, EvaluationOverall, EvaluationHours, Evaluation, \
+from .config import SearchParams as Params
+from .exceptions import MissingElementError, ParseVerificationError
+from .structs import EvaluationMetadata, EvaluationItem, EvaluationOverall, EvaluationHours, Evaluation, \
     Bounds, Items
 
 

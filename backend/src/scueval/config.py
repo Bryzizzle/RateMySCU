@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from scueval.structs import Bounds
+from .structs import Bounds
 
 
 @dataclass
