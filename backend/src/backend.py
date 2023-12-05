@@ -1,11 +1,16 @@
 import os
+
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
 from typing import Optional
+
 from .database import *
 from .scueval.structs import *
 from .evalupload import *
+
 
 # BACKEND API FOR ACCESSING EVALUATIONS DATABASE
 
@@ -18,12 +23,26 @@ class EvalRequest(BaseModel):
     year: Optional[int] = None
     professor: Optional[str] = None
     overall: Optional[float] = None
-    overallSearch: Optional[str] = None # greaterThan, lessThan, equals
+    overallSearch: Optional[str] = None  # greaterThan, lessThan, equals
 
 
 app = FastAPI()
+
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 connection = create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
-    os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'), os.environ.get('POSTGRES_PORT'))
+                               os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
+                               os.environ.get('POSTGRES_PORT'))
 
 
 @app.get("/api/v0")
@@ -36,11 +55,12 @@ async def invalid_endpoint():
     raise HTTPException(status_code=404, detail="Invalid API Endpoint")
 
 
-@app.get("/check") # added function to create connection
+@app.get("/check")  # added function to create connection
 async def health_check():
-    global connection 
+    global connection
     connection = create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
-        os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'), os.environ.get('POSTGRES_PORT'))
+                                   os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
+                                   os.environ.get('POSTGRES_PORT'))
     return {"status": "OK", "version": "dev"}
 
 
@@ -58,9 +78,10 @@ async def select_evaluations(request: EvalRequest):
         print(query)
         evals = select_query(connection, query)
 
-        return { "status": "200", "result": evals }
+        return {"status": "200", "result": evals}
     except Exception as e:
-        return { "status": "500", "error": str(e) }
+        return {"status": "500", "error": str(e)}
+
 
 # request_query_builder: builds an SQL query based on request body from select_evalutations
 def request_query_builder(request: EvalRequest):
@@ -90,11 +111,12 @@ def request_query_builder(request: EvalRequest):
     query += " AND ".join(query_builder) + ";"
     return query
 
+
 # test: temporary GET endpoint for testing evaluation upload system
 @app.post("/uploadEvals")
 async def manual_upload_evaluations(file: UploadFile):
     try:
-        upload_system(connection, file.filename)
-        return { "status": "200", "file name": file.filename }
+        upload_system(connection, file)
+        return {"status": "200", "file name": file.filename}
     except Exception as e:
-        return { "status": "500", "error": str(e) }
+        return {"status": "500", "error": str(e)}
