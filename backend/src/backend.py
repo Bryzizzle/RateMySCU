@@ -1,7 +1,6 @@
 import os
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, HTTPException, UploadFile, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
@@ -10,6 +9,7 @@ from typing import Optional
 from .database import *
 from .scueval.structs import *
 from .evalupload import *
+from .jwt import get_current_user_email
 
 
 # BACKEND API FOR ACCESSING EVALUATIONS DATABASE
@@ -41,6 +41,7 @@ app.add_middleware(
 )
 
 
+# Create a connection to Postgres database
 def getConnection():
     return create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
                              os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
@@ -73,7 +74,7 @@ async def health_check():
 
 # select_evaluations: POST endpoint for returning evaluations based on search criteria
 @app.post("/getEvals")
-async def select_evaluations(request: EvalRequest):
+async def select_evaluations(request: EvalRequest, current_email: str = Depends(get_current_user_email)):
     try:
         connection = getConnection()
         # build query and get evals from database

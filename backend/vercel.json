@@ -3,12 +3,20 @@
     {
       "src": "src/backend.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "src/auth.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
       "dest": "src/backend.py"
+    },
+    {
+      "src": "auth/(.*)",
+      "dest": "src/auth.py"
     }
   ]
 }
