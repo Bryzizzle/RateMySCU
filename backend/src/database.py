@@ -1,9 +1,10 @@
 import psycopg2
 from psycopg2 import OperationalError
 
+
 # CODE FOR CONNECTING TO AND QUERYING DATABASE
 
-#create_connection: creates a connection to the postgres database
+# create_connection: creates a connection to the postgres database
 def create_connection(db_name, db_user, db_password, db_host, db_port):
     connection = None
     try:
@@ -19,6 +20,7 @@ def create_connection(db_name, db_user, db_password, db_host, db_port):
         print(f"The error '{e}' occurred")
     return connection
 
+
 # no_response_query: sends an SQL query with no expected response
 def no_response_query(connection, query):
     connection.autocommit = True
@@ -28,6 +30,7 @@ def no_response_query(connection, query):
         print("Query executed successfully")
     except OperationalError as e:
         print(f"The error '{e}' occurred")
+
 
 # select_query: sends an SQL query and interprets resulting evaluations as JSON
 def select_query(connection, query):

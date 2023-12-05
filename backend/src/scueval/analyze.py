@@ -1,7 +1,10 @@
+from io import IOBase
+from pathlib import PurePath
+
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextBoxHorizontal, LTItem, LTTextLineHorizontal
 
-from typing import Iterator, Optional
+from typing import Iterator, Optional, Union
 from operator import attrgetter
 import re
 
@@ -11,9 +14,9 @@ from .structs import EvaluationMetadata, EvaluationItem, EvaluationOverall, Eval
     Bounds, Items
 
 
-def process_pdf(file_loc: str):
+def process_pdf(file: Union[PurePath, str, IOBase]):
     # Extract PDF
-    pages = list(extract_pages(file_loc))
+    pages = list(extract_pages(file))
 
     # Get all the text elements of Page 1 in list form
     page1_text_elems = [elem for elem in pages[0] if isinstance(elem, LTTextBoxHorizontal)]
