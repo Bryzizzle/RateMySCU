@@ -28,6 +28,7 @@ def no_response_query(connection, query):
     try:
         cursor.execute(query)
         print("Query executed successfully")
+        connection.close()
     except OperationalError as e:
         print(f"The error '{e}' occurred")
 
@@ -46,6 +47,7 @@ def select_query(connection, query):
                 dictionary[cursor.description[i][0]] = value
             result.append(dictionary)
         print("Query executed successfully")
+        connection.close()
         return result
     except OperationalError as e:
         print(f"The error '{e}' occurred")

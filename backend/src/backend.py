@@ -40,7 +40,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-connection = create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
+def getConnection():
+    return create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
                                os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
                                os.environ.get('POSTGRES_PORT'))
 
@@ -57,10 +58,10 @@ async def invalid_endpoint():
 
 @app.get("/check")  # added function to create connection
 async def health_check():
-    global connection
-    connection = create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
-                                   os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
-                                   os.environ.get('POSTGRES_PORT'))
+    # global connection
+    # connection = create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
+    #                                os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
+    #                                os.environ.get('POSTGRES_PORT'))
     return {"status": "OK", "version": "dev"}
 
 
@@ -73,6 +74,7 @@ async def health_check():
 @app.post("/getEvals")
 async def select_evaluations(request: EvalRequest):
     try:
+        connection = getConnection()
         # build query and get evals from database
         query = request_query_builder(request)
         print(query)
@@ -120,6 +122,7 @@ async def manual_upload_evaluations(file: UploadFile):
     print(f"Processing evaluation with ID: {file_id}")
 
     try:
+        connection = getConnection()
         upload_system(connection, file)
         return {"status": "200", "filename": file_id}
     except Exception as e:
