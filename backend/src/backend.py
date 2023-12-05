@@ -115,12 +115,12 @@ def request_query_builder(request: EvalRequest):
 # test: temporary GET endpoint for testing evaluation upload system
 @app.post("/uploadEvals")
 async def manual_upload_evaluations(file: UploadFile):
-    # This is the id you should use in the evals
+    # This is the id that should be use in the evals
     file_id = file.filename.split(".")[0]
     print(f"Processing evaluation with ID: {file_id}")
 
     try:
         upload_system(connection, file)
-        return {"status": "200", "file name": file.filename}
+        return {"status": "200", "filename": file_id}
     except Exception as e:
         return {"status": "500", "error": str(e)}

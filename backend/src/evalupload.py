@@ -13,11 +13,9 @@ from .scueval.analyze import process_pdf
 # uplaod_system: temporary code for uploading placeholder evaluation to database
 def upload_system(connection, pdf_file: UploadFile):
     try:
-        print("activate upload")
+        file_id = pdf_file.filename.split(".")[0]
         evaluation = process_pdf(BytesIO(pdf_file.file.read()))
-        print("created evaluation")
-        # evaluation = create_evaluation()
-        upload_evaluation(evaluation, connection)
+        upload_evaluation(evaluation, file_id, connection)
     except Exception as e:
         print(e)
 
@@ -52,14 +50,15 @@ def create_evaluation():
 
 
 # upload_evaluation: creates SQL query to upload evaluation to postgres database
-def upload_evaluation(eval: Evaluation, connection):
+def upload_evaluation(eval: Evaluation, file_id, connection):
     try:
         print("Uploading evaluation")
-        query = """INSERT INTO evals (classcode, classname, quarter, year, professor, 
+        query = """INSERT INTO evals (id, classcode, classname, quarter, year, professor, 
             numstudents, numresponses, overall, hours, stats) VALUES ("""
         query_builder = []
-        query_builder.append("'" + eval.metadata.section_code + "'")
+        query_builder.append("'" + file_id + "'")
         query_builder.append("'" + eval.metadata.course_name + "'")
+        query_builder.append("'" + eval.metadata.course_desc + "'")
         query_builder.append("'" + eval.metadata.section_quarter + "'")
         query_builder.append(eval.metadata.section_year)
         query_builder.append("'" + eval.metadata.instructor + "'")
@@ -70,7 +69,7 @@ def upload_evaluation(eval: Evaluation, connection):
         query_builder.append("'{" + eval_hours + "}'")
         query_builder.append("'" + str(extract_stats_json(eval.items)) + "'")
         query += ", ".join(query_builder) + ");"
-        print(query)
+        # print(query)
         no_response_query(connection, query)
     except Exception as e:
         print(e)
