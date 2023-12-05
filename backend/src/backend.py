@@ -40,10 +40,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def getConnection():
     return create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
-                               os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
-                               os.environ.get('POSTGRES_PORT'))
+                             os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
+                             os.environ.get('POSTGRES_PORT'))
 
 
 @app.get("/api/v0")
@@ -125,5 +126,19 @@ async def manual_upload_evaluations(file: UploadFile):
         connection = getConnection()
         upload_system(connection, file)
         return {"status": "200", "filename": file_id}
+    except Exception as e:
+        return {"status": "500", "error": str(e)}
+
+
+@app.get("/getIDs")
+async def get_all_ids():
+    try:
+        cursor = getConnection().cursor()
+        cursor.execute("SELECT id FROM evals")
+
+        result = [row[0] for row in cursor.fetchall()]
+        print(result)
+
+        return {"status": "200", "result": result}
     except Exception as e:
         return {"status": "500", "error": str(e)}
