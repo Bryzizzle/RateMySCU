@@ -1,7 +1,12 @@
 import os
 
-from fastapi import FastAPI, HTTPException, UploadFile, Depends
+from authlib.integrations.starlette_client import OAuth
+from authlib.integrations.starlette_client import OAuthError
+from fastapi import FastAPI, HTTPException, UploadFile, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.config import Config
+from starlette.responses import HTMLResponse, RedirectResponse
 
 from pydantic import BaseModel
 from typing import Optional
@@ -9,7 +14,6 @@ from typing import Optional
 from .database import *
 from .scueval.structs import *
 from .evalupload import *
-from .jwt import get_current_user_email
 
 
 # BACKEND API FOR ACCESSING EVALUATIONS DATABASE
@@ -25,6 +29,12 @@ class EvalRequest(BaseModel):
     overall: Optional[float] = None
     overallSearch: Optional[str] = None  # greaterThan, lessThan, equals
 
+# Error
+CREDENTIALS_EXCEPTION = HTTPException(
+    status_code='401',
+    detail='Could not validate credentials',
+    headers={'WWW-Authenticate': 'Bearer'},
+)
 
 app = FastAPI()
 
@@ -39,6 +49,52 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(SessionMiddleware, secret_key="!secret")
+
+# Set up OAuth
+config_data = {'GOOGLE_CLIENT_ID': os.environ.get('GOOGLE_CLIENT_ID'),
+               'GOOGLE_CLIENT_SECRET': os.environ.get('GOOGLE_CLIENT_SECRET')}
+starlette_config = Config(environ=config_data)
+oauth = OAuth(starlette_config)
+oauth.register(
+    name='google',
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
+print("oauth registered")
+
+# Endpoints for OAuth
+@app.get('/login')
+async def login(request: Request):
+    redirect_uri = request.url_for('auth')
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+
+@app.get('/auth')
+async def auth(request: Request):
+    try:
+        token = await oauth.google.authorize_access_token(request)
+    except OAuthError:
+        return CREDENTIALS_EXCEPTION
+    user = token.get('userinfo')
+    if "@scu.edu" in user["email"]:
+        request.session['user'] = dict(user)
+    return RedirectResponse(url='/')
+
+
+@app.get('/')
+async def homepage(request: Request):
+    user = request.session.get('user')
+    if user:
+        return {"status": "loggedin", "email": user["email"]}
+    return {"status": "loggedout"}
+
+
+@app.route('/logout')
+async def logout(request: Request):
+    request.session.pop('user', None)
+    return RedirectResponse(url='/')
 
 
 # Create a connection to Postgres database
@@ -60,10 +116,6 @@ async def invalid_endpoint():
 
 @app.get("/check")  # added function to create connection
 async def health_check():
-    # global connection
-    # connection = create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
-    #                                os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
-    #                                os.environ.get('POSTGRES_PORT'))
     return {"status": "OK", "version": "dev"}
 
 
@@ -74,7 +126,9 @@ async def health_check():
 
 # select_evaluations: POST endpoint for returning evaluations based on search criteria
 @app.post("/getEvals")
-async def select_evaluations(request: EvalRequest, current_email: str = Depends(get_current_user_email)):
+async def select_evaluations(request: EvalRequest, email: str):
+    if "@scu.edu" not in email:
+        return CREDENTIALS_EXCEPTION
     try:
         connection = getConnection()
         # build query and get evals from database
