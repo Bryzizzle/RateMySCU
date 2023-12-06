@@ -80,7 +80,7 @@ async def auth(request: Request):
     user = token.get('userinfo')
     if user["hd"] == "scu.edu":
         request.session['user'] = dict(user)
-    return RedirectResponse(url='/')
+    return RedirectResponse(url='https://ratemyscu.bryan.cf/')
 
 
 @app.get('/')
