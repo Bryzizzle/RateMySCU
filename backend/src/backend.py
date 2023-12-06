@@ -2,7 +2,7 @@ import os
 
 from authlib.integrations.starlette_client import OAuth
 from authlib.integrations.starlette_client import OAuthError
-from fastapi import FastAPI, HTTPException, UploadFile, Depends, Request
+from fastapi import FastAPI, HTTPException, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.config import Config
@@ -78,7 +78,7 @@ async def auth(request: Request):
     except OAuthError:
         return CREDENTIALS_EXCEPTION
     user = token.get('userinfo')
-    if "@scu.edu" in user["email"]:
+    if user["hd"] == "scu.edu":
         request.session['user'] = dict(user)
     return RedirectResponse(url='/')
 
@@ -126,8 +126,8 @@ async def health_check():
 
 # select_evaluations: POST endpoint for returning evaluations based on search criteria
 @app.post("/getEvals")
-async def select_evaluations(request: EvalRequest, email: str):
-    if "@scu.edu" not in email:
+async def select_evaluations(req: Request, request: EvalRequest):
+    if req.session.get("user", None) is None or req.session["user"]["hd"] != "scu.edu":
         return CREDENTIALS_EXCEPTION
     try:
         connection = getConnection()
