@@ -147,8 +147,10 @@ const App = () => {
         evals.forEach(evalu => {
           sum += evalu.overall;
           num++;
+          console.log(sum, num);
         });
         let avg = sum/num;
+        console.log(avg);
         profList.push({ "id" : i, "name" : name, "score" : avg });
         i++;
       });
