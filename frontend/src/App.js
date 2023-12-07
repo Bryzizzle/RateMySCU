@@ -125,9 +125,11 @@ const App = () => {
   }
 
   function groupBy(arr) {
+    console.log("grouped");
     return arr.reduce((memo, x) => {
       if (!memo[x['professor']]) { memo[x['professor']] = []; }
       memo[x['professor']].push(x);
+      console.log(memo);
       return memo;
     }, {});
   }
