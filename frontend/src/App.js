@@ -196,7 +196,7 @@ const App = () => {
     <>
       <div>
         
-        <h1>Rate My SCU</h1>
+        <h1>Rate My SCU 1</h1>
 
         {!loggedIn && (
           <>
