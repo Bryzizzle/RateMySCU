@@ -133,8 +133,8 @@ const App = () => {
   }
 
   const aggregate = () => {
-    var profsGrouped = groupBy(profEvals);
     console.log(profEvals);
+    var profsGrouped = groupBy(profEvals);
 
     let profList = [];
 
