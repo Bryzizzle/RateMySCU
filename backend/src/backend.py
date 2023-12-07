@@ -7,7 +7,7 @@ from starlette.config import Config
 from starlette.responses import RedirectResponse
 
 from .evalupload import *
-from .responses import CREDENTIALS_EXCEPTION
+from .responses import UNAUTHORIZED_EXCEPTION, NON_SCU_EXCEPTION
 from .database import get_connection, request_query_builder
 
 app = FastAPI()
@@ -22,7 +22,7 @@ app.add_middleware(
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key="!secret"
+    secret_key=os.environ.get('SESSION_SECRET')
 )
 
 # Set up OAuth
@@ -55,7 +55,7 @@ async def auth(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
     except OAuthError:
-        return CREDENTIALS_EXCEPTION
+        return UNAUTHORIZED_EXCEPTION
 
     user = token.get('userinfo')
     if user["hd"] == "scu.edu":
@@ -71,7 +71,7 @@ async def homepage(request: Request):
     return {"status": "loggedout"}
 
 
-@app.route('/logout')
+@app.get('/logout')
 async def logout(request: Request):
     request.session.pop('user', None)
     return RedirectResponse(url='/')
@@ -107,8 +107,8 @@ async def select_evaluations(req: Request, request: EvalRequest):
     :return:
     """
 
-    if req.session.get("user", None) is None or req.session["user"]["hd"] != "scu.edu":
-        return CREDENTIALS_EXCEPTION
+    if req.session.get("user", None) is None or req.session["user"].get("hd", None) != "scu.edu":
+        return NON_SCU_EXCEPTION
     try:
         connection = get_connection()
         # build query and get evals from database
