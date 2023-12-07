@@ -135,6 +135,7 @@ const App = () => {
   const aggregate = () => {
     console.log(profEvals);
     var profsGrouped = groupBy(profEvals);
+    console.log(profsGrouped);
 
     let profList = [];
 
@@ -153,7 +154,8 @@ const App = () => {
       });
 
       setProfs(profList);
-  }
+      console.log(profsList);
+    }
 
   const handleSubmit = (event) => {
     event.preventDefault();
