@@ -30,15 +30,15 @@ const App = () => {
   // })
 
   useEffect(() => {
-    let ignore = false;
+    // let ignore = false;
     
-    if (!ignore)
+    // if (!ignore)
       credCheck();
-
+    console.log(loggedIn);
     // if (!loggedIn)
     //   login();
 
-    return () => { ignore = true; };
+    // return () => { ignore = true; };
   },[]);
 
   const credCheck = () => {
@@ -113,9 +113,9 @@ const App = () => {
           console.log(data);
           setProfs("");
           setEvals("");
-          // if (queryType === "profs")
-          //   setProfEvals(data.result);
-          // else
+          if (queryType === "profs")
+            setProfEvals(data.result);
+          else
             setEvals(data.result);
         }).catch(error => {
           console.log(error);
@@ -138,24 +138,26 @@ const App = () => {
   }
 
   const aggregate = () => {
-    var proffs = groupBy(profEvals);
+    var profsGrouped = groupBy(profEvals);
     console.log(profEvals);
 
-    // let sum = {}
-    // let num = {}
-    // let avg = {}
-    // for eval in evals:
-    //   if sum[eval.professor] === undefined:
-    //     sum[eval.professor] = 0
+    let profList = [];
 
-    // sum[eval.professor] += eval.some_attribute
-    // num[eval.professor] += 1
+    let i = 0;
+    Object.entries(profsGrouped).forEach(prof => {
+      const [name, evals] = prof;
+        var sum;
+        var num = 0;
+        evals.forEach(evalu => {
+          sum += evalu.overall;
+          num++;
+        });
+        let avg = sum/num;
+        profList.push({ "id" : i, "name" : name, "score" : avg });
+        i++;
+      });
 
-    // for prof in sum.keys:
-    //   avg[prof] = sum[prof]/num[prof]
-
-    // return avg
-
+      setProfs(profList);
   }
 
   const handleSubmit = (event) => {
@@ -284,7 +286,18 @@ const App = () => {
 
       <div>
         {profs.length > 0 && (
-          <>a</>
+          <>
+            <ul>
+              {profs.map(prof => (
+                <>
+                  <li class="flex-container" key={prof.id}>
+                    <div class="flex-2">{prof.name}</div>
+                    <div class="flex-2">{prof.score}</div>
+                  </li>
+                </>
+              ))}            
+            </ul>
+          </>
         )}
         {evals.length > 0 && (
           <ul>
