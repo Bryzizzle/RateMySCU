@@ -147,7 +147,7 @@ const App = () => {
         evals.forEach(evalu => {
           sum += evalu.overall;
           num++;
-          console.log(sum, num);
+          console.log(num);
         });
         let avg = sum/num;
         console.log(avg);
