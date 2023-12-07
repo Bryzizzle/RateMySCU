@@ -94,7 +94,7 @@ class EvaluationItem:
     # Summary Values
     responses: int
     average: float
-    median: int
+    median: float
     stddev: float
 
 

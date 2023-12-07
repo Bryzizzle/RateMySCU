@@ -1,50 +1,80 @@
-import os
-
-from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import RedirectResponse
+from authlib.integrations.starlette_client import OAuth
+from authlib.integrations.starlette_client import OAuthError
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.config import Config
+from starlette.responses import RedirectResponse
 
-from pydantic import BaseModel
-from typing import Optional
-
-from .database import *
-from .scueval.structs import *
 from .evalupload import *
-
-
-# BACKEND API FOR ACCESSING EVALUATIONS DATABASE
-
-# EvalRequest: object for eval request body
-class EvalRequest(BaseModel):
-    id: Optional[str] = None
-    classname: Optional[str] = None
-    classcode: Optional[str] = None
-    quarter: Optional[str] = None
-    year: Optional[int] = None
-    professor: Optional[str] = None
-    overall: Optional[float] = None
-    overallSearch: Optional[str] = None  # greaterThan, lessThan, equals
-
+from .responses import CREDENTIALS_EXCEPTION
+from .database import get_connection, request_query_builder
 
 app = FastAPI()
 
-origins = [
-    "*"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="!secret"
+)
 
-def getConnection():
-    return create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
-                             os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
-                             os.environ.get('POSTGRES_PORT'))
+# Set up OAuth
+config_data = {'GOOGLE_CLIENT_ID': os.environ.get('GOOGLE_CLIENT_ID'),
+               'GOOGLE_CLIENT_SECRET': os.environ.get('GOOGLE_CLIENT_SECRET')}
+starlette_config = Config(environ=config_data)
+oauth = OAuth(starlette_config)
+oauth.register(
+    name='google',
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
+
+
+# Endpoints for OAuth
+@app.get('/login')
+async def login(request: Request):
+    redirect_uri = request.url_for('auth')
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+
+@app.get('/auth')
+async def auth(request: Request):
+    """
+    OAuth redirect destination, saves the user information and redirect the user back to the frontend
+
+    :param request: Request structure for authentication
+    """
+
+    try:
+        token = await oauth.google.authorize_access_token(request)
+    except OAuthError:
+        return CREDENTIALS_EXCEPTION
+
+    user = token.get('userinfo')
+    if user["hd"] == "scu.edu":
+        request.session['user'] = dict(user)
+    return RedirectResponse(url='https://ratemyscu.bryan.cf/')
+
+
+@app.get('/')
+async def homepage(request: Request):
+    user = request.session.get('user')
+    if user:
+        return {"status": "loggedin", "email": user["email"]}
+    return {"status": "loggedout"}
+
+
+@app.route('/logout')
+async def logout(request: Request):
+    request.session.pop('user', None)
+    return RedirectResponse(url='/')
 
 
 @app.get("/api/v0")
@@ -57,12 +87,8 @@ async def invalid_endpoint():
     raise HTTPException(status_code=404, detail="Invalid API Endpoint")
 
 
-@app.get("/check")  # added function to create connection
+@app.get("/check")
 async def health_check():
-    # global connection
-    # connection = create_connection(os.environ.get('POSTGRES_DATABASE'), os.environ.get('POSTGRES_USER'),
-    #                                os.environ.get('POSTGRES_PASSWORD'), os.environ.get('POSTGRES_HOST'),
-    #                                os.environ.get('POSTGRES_PORT'))
     return {"status": "OK", "version": "dev"}
 
 
@@ -71,11 +97,20 @@ async def health_check():
 #     return RedirectResponse("https://ratemyscu.bryan.cf")
 
 
-# select_evaluations: POST endpoint for returning evaluations based on search criteria
 @app.post("/getEvals")
-async def select_evaluations(request: EvalRequest):
+async def select_evaluations(req: Request, request: EvalRequest):
+    """
+    POST endpoint for returning evaluations based on search criteria
+
+    :param req: The request provided by a middleware for authentication
+    :param request: The request (formatted as an evaluation) provided by the user
+    :return:
+    """
+
+    if req.session.get("user", None) is None or req.session["user"]["hd"] != "scu.edu":
+        return CREDENTIALS_EXCEPTION
     try:
-        connection = getConnection()
+        connection = get_connection()
         # build query and get evals from database
         query = request_query_builder(request)
         print(query)
@@ -86,44 +121,20 @@ async def select_evaluations(request: EvalRequest):
         return {"status": "500", "error": str(e)}
 
 
-# request_query_builder: builds an SQL query based on request body from select_evalutations
-def request_query_builder(request: EvalRequest):
-    query = "SELECT * FROM evals"
-    query_builder = []
-    if any(field is not None for field in dict(request).values()):
-        query += (" WHERE ")
-        if request.id:
-            query_builder.append("id='" + request.id + "'")
-        if request.classname:
-            query_builder.append("classname='" + request.classname + "'")
-        if request.classcode:
-            query_builder.append("classcode='" + request.classcode + "'")
-        if request.quarter:
-            query_builder.append("quarter='" + request.quarter + "'")
-        if request.year:
-            query_builder.append("year=" + str(request.year))
-        if request.professor:
-            query_builder.append("professor='" + request.professor + "'")
-        if request.overall and request.overallSearch:
-            if request.overallSearch == "greaterThan":
-                query_builder.append("overall>=" + str(request.overall))
-            elif request.overallSearch == "lessThan":
-                query_builder.append("overall<=" + str(request.overall))
-            elif request.overallSearch == "equals":
-                query_builder.append("overall=" + str(request.overall))
-    query += " AND ".join(query_builder) + ";"
-    return query
-
-
-# test: temporary GET endpoint for testing evaluation upload system
 @app.post("/uploadEvals")
 async def manual_upload_evaluations(file: UploadFile):
+    """
+    Endpoint to process and upload evaluation PDFs to the database
+
+    :param file: File passed in by the request
+    """
+
     # This is the id that should be use in the evals
     file_id = file.filename.split(".")[0]
     print(f"Processing evaluation with ID: {file_id}")
 
     try:
-        connection = getConnection()
+        connection = get_connection()
         upload_system(connection, file)
         return {"status": "200", "filename": file_id}
     except Exception as e:
@@ -132,8 +143,11 @@ async def manual_upload_evaluations(file: UploadFile):
 
 @app.get("/getIDs")
 async def get_all_ids():
+    """
+    Endpoint to get all the evaluation IDs currently in the database
+    """
     try:
-        cursor = getConnection().cursor()
+        cursor = get_connection().cursor()
         cursor.execute("SELECT id FROM evals")
 
         result = [row[0] for row in cursor.fetchall()]
