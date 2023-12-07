@@ -18,16 +18,6 @@ const App = () => {
   const [overall, setOverall] = useState("");
   const [overallSearch, setOverallSearch] = useState("");
 
-  // const curElement = useRef();
-
-  // JSON.stringify({
-  //   "classname" : classname,
-  //   "classcode" : classcode,
-  //   "quarter" : quarter,
-  //   "year" : year,
-  //   "overall" : overall,
-  //   "overallSearch" : overallSearch
-  // })
 
   useEffect(() => {
     // let ignore = false;
@@ -43,7 +33,9 @@ const App = () => {
 
   const credCheck = () => {
     try {
-      fetch("https://backend.ratemyscu.bryan.cf/")
+      fetch("https://backend.ratemyscu.bryan.cf/", {
+        credentials: 'include'
+      })
         .then(response => {
           return response.json();
         })
