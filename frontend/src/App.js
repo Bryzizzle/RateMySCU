@@ -120,6 +120,7 @@ const App = () => {
     }
   
     if(queryType === "profs") {
+      console.log(queryType);
       aggregate();
     }
   }
@@ -135,7 +136,7 @@ const App = () => {
   }
 
   const aggregate = () => {
-    console.log(profEvals);
+    console.log("profEvals"+profEvals);
     var profsGrouped = groupBy(profEvals);
     console.log("grouped"+profsGrouped);
 
