@@ -20,15 +20,15 @@ const App = () => {
 
 
   useEffect(() => {
-    // let ignore = false;
+    let ignore = false;
     
-    // if (!ignore)
+    if (!ignore)
       credCheck();
     console.log(loggedIn);
     // if (!loggedIn)
     //   login();
 
-    // return () => { ignore = true; };
+    return () => { ignore = true; };
   },[]);
 
   const credCheck = () => {
