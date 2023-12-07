@@ -6,7 +6,7 @@ const App = () => {
   const [evals, setEvals] = useState("");
   const [profEvals, setProfEvals] = useState("");
   const [profs, setProfs] = useState("");
-  const [loggedIn, setLoggedIn] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
 
   const [queryType, setQueryType] = useState("")
 
@@ -53,6 +53,8 @@ const App = () => {
             setLoggedIn(false);
           if (data.status === "loggedin")
             setLoggedIn(true);
+          console.log(loggedIn);
+
         }).catch(error => {
           console.log(error);
         });
@@ -196,7 +198,7 @@ const App = () => {
     <>
       <div>
         
-        <h1>Rate My SCU 1</h1>
+        <h1>Rate My SCU</h1>
 
         {!loggedIn && (
           <>
