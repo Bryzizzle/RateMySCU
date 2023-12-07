@@ -93,7 +93,8 @@ const App = () => {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyJSON)
+        body: JSON.stringify(bodyJSON),
+        credentials: 'include'
       };
 
     var fetched;
