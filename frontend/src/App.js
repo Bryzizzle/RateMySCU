@@ -6,7 +6,7 @@ const App = () => {
   const [evals, setEvals] = useState("");
   const [profEvals, setProfEvals] = useState("");
   const [profs, setProfs] = useState("");
-  const [loggedIn, setLoggedIn] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
 
   const [queryType, setQueryType] = useState("")
 
@@ -18,23 +18,13 @@ const App = () => {
   const [overall, setOverall] = useState("");
   const [overallSearch, setOverallSearch] = useState("");
 
-  // const curElement = useRef();
-
-  // JSON.stringify({
-  //   "classname" : classname,
-  //   "classcode" : classcode,
-  //   "quarter" : quarter,
-  //   "year" : year,
-  //   "overall" : overall,
-  //   "overallSearch" : overallSearch
-  // })
 
   useEffect(() => {
     let ignore = false;
     
     if (!ignore)
       credCheck();
-
+    console.log(loggedIn);
     // if (!loggedIn)
     //   login();
 
@@ -43,7 +33,9 @@ const App = () => {
 
   const credCheck = () => {
     try {
-      fetch("https://backend.ratemyscu.bryan.cf/")
+      fetch("https://backend.ratemyscu.bryan.cf/", {
+        credentials: 'include'
+      })
         .then(response => {
           return response.json();
         })
@@ -53,6 +45,8 @@ const App = () => {
             setLoggedIn(false);
           if (data.status === "loggedin")
             setLoggedIn(true);
+          console.log(loggedIn);
+
         }).catch(error => {
           console.log(error);
         });
@@ -99,7 +93,8 @@ const App = () => {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyJSON)
+        body: JSON.stringify(bodyJSON),
+        credentials: 'include'
       };
 
     var fetched;
@@ -113,9 +108,9 @@ const App = () => {
           console.log(data);
           setProfs("");
           setEvals("");
-          // if (queryType === "profs")
-          //   setProfEvals(data.result);
-          // else
+          if (queryType === "profs")
+            setProfEvals(data.result);
+          else
             setEvals(data.result);
         }).catch(error => {
           console.log(error);
@@ -125,38 +120,48 @@ const App = () => {
     }
   
     if(queryType === "profs") {
+      console.log(queryType);
       aggregate();
     }
   }
 
   function groupBy(arr) {
+    console.log("grouped");
     return arr.reduce((memo, x) => {
-      if (!memo[x['evaluation']['professor']]) { memo[x['evaluation']['professor']] = []; }
-      memo[x['evaluation']['professor']].push(x);
+      if (!memo[x['professor']]) { memo[x['professor']] = []; }
+      memo[x['professor']].push(x);
+      console.log(memo);
       return memo;
     }, {});
   }
 
   const aggregate = () => {
-    var proffs = groupBy(profEvals);
+    console.log("aggregate");
     console.log(profEvals);
+    var profsGrouped = groupBy(profEvals);
+    console.log("grouped"+profsGrouped);
 
-    // let sum = {}
-    // let num = {}
-    // let avg = {}
-    // for eval in evals:
-    //   if sum[eval.professor] === undefined:
-    //     sum[eval.professor] = 0
+    let profList = [];
 
-    // sum[eval.professor] += eval.some_attribute
-    // num[eval.professor] += 1
+    let i = 0;
+    Object.entries(profsGrouped).forEach(prof => {
+      const [name, evals] = prof;
+        var sum;
+        var num = 0;
+        evals.forEach(evalu => {
+          sum += evalu.overall;
+          num++;
+          console.log(num);
+        });
+        let avg = sum/num;
+        console.log(avg);
+        profList.push({ "id" : i, "name" : name, "score" : avg });
+        i++;
+      });
 
-    // for prof in sum.keys:
-    //   avg[prof] = sum[prof]/num[prof]
-
-    // return avg
-
-  }
+      setProfs(profList);
+      console.log(profsList);
+    }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -194,7 +199,7 @@ const App = () => {
     <>
       <div>
         
-        <h1>Rate My SCU 1</h1>
+        <h1>Rate My SCU</h1>
 
         {!loggedIn && (
           <>
@@ -206,12 +211,12 @@ const App = () => {
         {loggedIn && (
           <>
 
-        <label> Show: 
+        {/* <label> Show: 
           <select style={{"margin": "0 38px"}} onChange={(e) => setQueryType(e.target.value)}>
             <option value="evals">Class Evaluations</option>
             <option value="profs">Professor Scores</option>
           </select>
-        </label>
+        </label> */}
 
         <form onSubmit={handleSubmit}>
           <ul>
@@ -284,7 +289,18 @@ const App = () => {
 
       <div>
         {profs.length > 0 && (
-          <>a</>
+          <>
+            <ul>
+              {profs.map(prof => (
+                <>
+                  <li class="flex-container" key={prof.id}>
+                    <div class="flex-2">{prof.name}</div>
+                    <div class="flex-2">{prof.score}</div>
+                  </li>
+                </>
+              ))}            
+            </ul>
+          </>
         )}
         {evals.length > 0 && (
           <ul>
