@@ -76,7 +76,7 @@ def request_query_builder(request: EvalRequest):
         if request.classcode:
             query_builder.append("classcode='" + request.classcode + "'")
         if request.quarter:
-            query_builder.append("quarter='" + request.quarter + "'")
+            query_builder.append("quarter LIKE '%" + request.quarter + "%'")
         if request.year:
             query_builder.append("year=" + str(request.year))
         if request.professor:
