@@ -58,7 +58,7 @@ async def auth(request: Request):
         return UNAUTHORIZED_EXCEPTION
 
     user = token.get('userinfo')
-    if user["hd"] == "scu.edu":
+    if user.get("hd", None) == "scu.edu":
         request.session['user'] = dict(user)
     return RedirectResponse(url='https://ratemyscu.bryan.cf/')
 
