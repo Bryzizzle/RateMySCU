@@ -211,12 +211,12 @@ const App = () => {
         {loggedIn && (
           <>
 
-        {/* <label> Show:  
+        <label> Show:  
           <select style={{"margin": "0 38px"}} onChange={(e) => setQueryType(e.target.value)}>
             <option value="evals">Class Evaluations</option>
             <option value="profs">Professor Scores</option>
           </select>
-        </label> */}
+        </label>
 
         <form onSubmit={handleSubmit}>
           <ul>
