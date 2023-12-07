@@ -136,7 +136,8 @@ const App = () => {
   }
 
   const aggregate = () => {
-    console.log("profEvals"+profEvals);
+    console.log("aggregate");
+    console.log(profEvals);
     var profsGrouped = groupBy(profEvals);
     console.log("grouped"+profsGrouped);
 
